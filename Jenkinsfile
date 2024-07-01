@@ -1,24 +1,16 @@
 pipeline {
     agent any
-
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+    }
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', credentialsId: 'github-creds', url: 'https://github.com/dayasuyal/demo-app.git'
-            }
-        }
-        stage('Build') {
+        stage('Build and Push Docker Image') {
             steps {
                 script {
-                    def app = docker.build("dayasuyal/demo-app")
-                }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                script {
-                    docker.withRegistry('', 'dockerhub') {
-                        app.push('latest')
+                    def app = 'demo-app'
+                    docker.withRegistry('https://index.docker.io/v1/', 'DOCKERHUB_CREDENTIALS') {
+                        def appImage = docker.build("dayasuyal/${app}")
+                        appImage.push("latest")
                     }
                 }
             }
