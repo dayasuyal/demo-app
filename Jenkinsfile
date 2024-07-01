@@ -1,12 +1,6 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:14'
-        }
-    }
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-    }
+    agent any
+
     stages {
         stage('Checkout') {
             steps {
@@ -16,33 +10,18 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    dockerImage = docker.build("dayasuyal/demo-app:${env.BUILD_ID}")
-                }
-            }
-        }
-        stage('Push to Docker Hub') {
-            steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
-                        dockerImage.push()
-                    }
+                    def app = docker.build("dayasuyal/demo-app")
                 }
             }
         }
         stage('Deploy') {
             steps {
-                sh '''
-                docker pull dayasuyal/demo-app:${BUILD_ID}
-                docker stop demo-app || true
-                docker rm demo-app || true
-                docker run -d -p 3030:3030 --name demo-app dayasuyal/demo-app:${BUILD_ID}
-                '''
+                script {
+                    docker.withRegistry('', 'dockerhub') {
+                        app.push('latest')
+                    }
+                }
             }
-        }
-    }
-    post {
-        always {
-            cleanWs()
         }
     }
 }
