@@ -1,16 +1,18 @@
 const express = require('express');
 const client = require('prom-client');
 const app = express();
-const port = 3030;
+const port = 3000;
 
 // Create a Registry which registers the metrics
 const register = new client.Registry();
-register.setDefaultLabels({ app: 'demo-app' });
+register.setDefaultLabels({
+  app: 'demo-app'
+});
 
-// Enable the collection of default metrics (e.g., CPU, memory, event loop stats)
+// Enable the collection of default metrics
 client.collectDefaultMetrics({ register });
 
-// Create a histogram metric for HTTP request duration
+// Create a histogram metric
 const httpRequestDurationMicroseconds = new client.Histogram({
   name: 'http_request_duration_ms',
   help: 'Duration of HTTP requests in ms',
@@ -18,7 +20,7 @@ const httpRequestDurationMicroseconds = new client.Histogram({
   buckets: [50, 100, 200, 300, 400, 500] // buckets for response time from 50ms to 500ms
 });
 
-// Register the histogram metric
+// Add the histogram to the register
 register.registerMetric(httpRequestDurationMicroseconds);
 
 // Middleware to measure request duration
@@ -30,7 +32,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Example route
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
@@ -41,7 +42,6 @@ app.get('/metrics', async (req, res) => {
   res.end(await register.metrics());
 });
 
-// Start server
 app.listen(port, () => {
   console.log(`Demo app listening at http://localhost:${port}`);
 });
