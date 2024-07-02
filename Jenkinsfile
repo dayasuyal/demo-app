@@ -46,5 +46,11 @@ pipeline {
             cleanWs()
         }
     }
+    triggers {
+
+        // Trigger on SCM changes (for Git)
+
+        pollSCM('* * * * *') 
+    }
 }
 
