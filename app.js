@@ -1,7 +1,7 @@
 const express = require('express');
 const client = require('prom-client');
 const app = express();
-const port = 3000;
+const port = 3030;
 
 // Create a Registry which registers the metrics
 const register = new client.Registry();
