@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 
-// Metrics endpoint
+// daya Metrics endpoint
 app.get('/metrics', async (req, res) => {
   res.setHeader('Content-Type', register.contentType);
   res.end(await register.metrics());
